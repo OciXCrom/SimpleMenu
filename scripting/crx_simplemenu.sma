@@ -1,7 +1,7 @@
 #include <amxmodx>
 #include <amxmisc>
 
-#define PLUGIN_VERSION "2.1"
+#define PLUGIN_VERSION "2.1a"
 #define MAX_MENUS 20
 
 enum
@@ -308,6 +308,7 @@ fileRead()
 							
 							ArrayPushArray(g_aMenuItems[iMenuId], eItem)
 							eItem[Flag][0] = EOS
+							eItem[Command][0] = EOS
 							szTeam[0] = EOS
 							g_iTotalItems[iMenuId]++
 						}
