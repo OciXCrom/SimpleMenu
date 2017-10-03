@@ -1,7 +1,7 @@
 #include <amxmodx>
 #include <amxmisc>
 
-#define PLUGIN_VERSION "2.1a"
+#define PLUGIN_VERSION "2.1"
 #define MAX_MENUS 20
 
 enum
@@ -35,7 +35,7 @@ enum _:Settings
 enum _:Items
 {
 	Name[64],
-	Command[32],
+	Command[64],
 	Flag[5],
 	Team,
 	bool:UseFunc,
@@ -98,7 +98,7 @@ fileRead()
 	
 	if(iFilePointer)
 	{
-		new szData[160], szKey[32], szValue[128], szTeam[2], iSection, iSize
+		new szData[256], szKey[128], szValue[128], szTeam[2], iSection, iSize
 		new eItem[Items], iMenuId = -1, bool:blRead = true
 		
 		while(!feof(iFilePointer))
@@ -308,7 +308,6 @@ fileRead()
 							
 							ArrayPushArray(g_aMenuItems[iMenuId], eItem)
 							eItem[Flag][0] = EOS
-							eItem[Command][0] = EOS
 							szTeam[0] = EOS
 							g_iTotalItems[iMenuId]++
 						}
