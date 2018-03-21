@@ -1,7 +1,7 @@
 #include <amxmodx>
 #include <amxmisc>
 
-#define PLUGIN_VERSION "2.1"
+#define PLUGIN_VERSION "2.1.1"
 #define MAX_MENUS 20
 
 enum
@@ -332,8 +332,11 @@ public cmdMenu(id)
 		format(szCommand, charsmax(szCommand), "%s %s", szCommand, szArgs)
 	}
 	
-	TrieGetCell(g_tCommands, szCommand, iMenuId)
-	menuMain(id, iMenuId)
+	if(TrieGetCell(g_tCommands, szCommand, iMenuId))
+		menuMain(id, iMenuId)
+	else
+		return PLUGIN_CONTINUE
+		
 	return PLUGIN_HANDLED
 }
 
