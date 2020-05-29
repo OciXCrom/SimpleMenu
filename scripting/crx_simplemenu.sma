@@ -1,7 +1,7 @@
 #include <amxmodx>
 #include <amxmisc>
 
-#define PLUGIN_VERSION "2.1.1"
+#define PLUGIN_VERSION "2.1.2"
 #define MAX_MENUS 20
 
 enum
@@ -48,7 +48,7 @@ new g_eDefaults[Settings],
 	g_iTotalItems[MAX_MENUS],
 	g_szMap[32],
 	g_msgSayText
-	
+
 new Trie:g_tCommands,
 	Array:g_aMenuItems[MAX_MENUS]
 
@@ -75,7 +75,7 @@ public plugin_precache()
 {
 	for(new i; i < MAX_MENUS; i++)
 		g_aMenuItems[i] = ArrayCreate(Items)
-		
+
 	get_mapname(g_szMap, charsmax(g_szMap))
 	g_tCommands = TrieCreate()
 	fileRead()
@@ -85,7 +85,7 @@ public plugin_end()
 {
 	for(new i; i < MAX_MENUS; i++)
 		ArrayDestroy(g_aMenuItems[i])
-		
+
 	TrieDestroy(g_tCommands)
 }
 
@@ -95,30 +95,30 @@ fileRead()
 	get_configsdir(szConfigsName, charsmax(szConfigsName))
 	formatex(szFilename, charsmax(szFilename), "%s/SimpleMenu.ini", szConfigsName)
 	new iFilePointer = fopen(szFilename, "rt")
-	
+
 	if(iFilePointer)
 	{
 		new szData[256], szKey[128], szValue[128], szTeam[2], iSection, iSize
 		new eItem[Items], iMenuId = -1, bool:blRead = true
-		
+
 		while(!feof(iFilePointer))
 		{
 			fgets(iFilePointer, szData, charsmax(szData))
 			trim(szData)
-			
+
 			switch(szData[0])
 			{
 				case EOS, ';': continue
 				case '-':
 				{
 					iSize = strlen(szData)
-					
+
 					if(szData[iSize - 1] == '-')
 					{
 						szData[0] = ' '
 						szData[iSize - 1] = ' '
 						trim(szData)
-						
+
 						if(contain(szData, "*") != -1)
 						{
 							strtok(szData, szKey, charsmax(szKey), szValue, charsmax(szValue), '*')
@@ -139,7 +139,7 @@ fileRead()
 						else if(containi(szData, "new menu") != -1)
 						{
 							iMenuId++
-							
+
 							for(new i; i < sizeof(g_eDefaults); i++)
 								g_eSettings[iMenuId][i] = g_eDefaults[i]
 						}
@@ -147,14 +147,14 @@ fileRead()
 						{
 							if(iMenuId < 0)
 								iMenuId = 0
-								
+
 							iSection = SECTION_SETTINGS
 						}
 						else if(containi(szData, "menu items") != -1)
 						{
 							if(iMenuId < 0)
 								iMenuId = 0
-								
+
 							iSection = SECTION_MENUITEMS
 						}
 					}
@@ -164,29 +164,29 @@ fileRead()
 				{
 					if(!blRead)
 						continue
-						
+
 					switch(iSection)
 					{
 						case SECTION_DEFAULTS:
 						{
 							strtok(szData, szKey, charsmax(szKey), szValue, charsmax(szValue), '=')
 							trim(szKey); trim(szValue)
-							
+
 							if(szValue[0] == EOS)
 								continue
-							
+
 							if(equal(szKey, "MENU_TITLE"))
 							{
 								if(contain(szValue, g_szNewLine[0]) != -1)
 									replace_all(szValue, charsmax(szValue), g_szNewLine[0], g_szNewLine[1])
-									
+
 								copy(g_eDefaults[MENU_TITLE], charsmax(g_eDefaults[MENU_TITLE]), szValue)
 							}
 							if(equal(szKey, "MENU_TITLE_PAGE"))
 							{
 								if(contain(szValue, g_szNewLine[0]) != -1)
 									replace_all(szValue, charsmax(szValue), g_szNewLine[0], g_szNewLine[1])
-									
+
 								copy(g_eDefaults[MENU_TITLE_PAGE], charsmax(g_eDefaults[MENU_TITLE_PAGE]), szValue)
 							}
 							else if(equal(szKey, "MENU_PREFIX"))
@@ -227,22 +227,22 @@ fileRead()
 						{
 							strtok(szData, szKey, charsmax(szKey), szValue, charsmax(szValue), '=')
 							trim(szKey); trim(szValue)
-							
+
 							if(szValue[0] == EOS)
 								continue
-							
+
 							if(equal(szKey, "MENU_TITLE"))
 							{
 								if(contain(szValue, g_szNewLine[0]) != -1)
 									replace_all(szValue, charsmax(szValue), g_szNewLine[0], g_szNewLine[1])
-									
+
 								copy(g_eSettings[iMenuId][MENU_TITLE], charsmax(g_eSettings[][MENU_TITLE]), szValue)
 							}
 							if(equal(szKey, "MENU_TITLE_PAGE"))
 							{
 								if(contain(szValue, g_szNewLine[0]) != -1)
 									replace_all(szValue, charsmax(szValue), g_szNewLine[0], g_szNewLine[1])
-									
+
 								copy(g_eSettings[iMenuId][MENU_TITLE_PAGE], charsmax(g_eSettings[][MENU_TITLE_PAGE]), szValue)
 							}
 							else if(equal(szKey, "MENU_PREFIX"))
@@ -293,7 +293,7 @@ fileRead()
 							parse(szData, eItem[Name], charsmax(eItem[Name]), eItem[Command], charsmax(eItem[Command]), eItem[Flag], charsmax(eItem[Flag]), szTeam, charsmax(szTeam))
 							eItem[UseFunc] = bool:(equal(eItem[Command], g_szFunc, charsmax(g_szFunc)))
 							eItem[Team] = str_to_num(szTeam)
-							
+
 							if(eItem[UseFunc])
 							{
 								replace(eItem[Command], charsmax(eItem[Command]), g_szFunc, "")
@@ -301,11 +301,11 @@ fileRead()
 								replace(eItem[Command], charsmax(eItem[Command]), ")", "")
 								strtok(eItem[Command], eItem[Plugin], charsmax(eItem[Plugin]), eItem[Function], charsmax(eItem[Function]), ',')
 								trim(eItem[Plugin]); trim(eItem[Function])
-								
+
 								if(contain(eItem[Plugin], g_szAMXX) == -1)
 									add(eItem[Plugin], charsmax(eItem[Plugin]), g_szAMXX)
 							}
-							
+
 							ArrayPushArray(g_aMenuItems[iMenuId], eItem)
 							eItem[Flag][0] = EOS
 							szTeam[0] = EOS
@@ -313,9 +313,9 @@ fileRead()
 						}
 					}
 				}
-			}			
+			}
 		}
-		
+
 		fclose(iFilePointer)
 	}
 }
@@ -324,52 +324,57 @@ public cmdMenu(id)
 {
 	new szCommand[64], szArgs[32], iMenuId
 	read_argv(0, szCommand, charsmax(szCommand))
-	
+
 	if(equal(szCommand[0], g_szSayStuff[0], 3) || equal(szCommand[0], g_szSayStuff[1], 8))
 	{
 		read_argv(1, szArgs, charsmax(szArgs))
 		remove_quotes(szArgs)
 		format(szCommand, charsmax(szCommand), "%s %s", szCommand, szArgs)
 	}
-	
+
 	if(TrieGetCell(g_tCommands, szCommand, iMenuId))
 		menuMain(id, iMenuId)
 	else
 		return PLUGIN_CONTINUE
-		
+
 	return PLUGIN_HANDLED
 }
 
 menuMain(id, iMenuId, iPage = 0)
 {
+	if(!is_user_connected(id))
+	{
+		return PLUGIN_HANDLED
+	}
+
 	if(g_eSettings[iMenuId][MENU_FLAG] && !(get_user_flags(id) & g_eSettings[iMenuId][MENU_FLAG]))
 	{
 		ColorChat(id, "%s %s", g_eSettings[iMenuId][MENU_PREFIX], g_eSettings[iMenuId][MENU_NOACCESS])
 		return PLUGIN_HANDLED
 	}
-	
+
 	if(!get_team_access(id, iMenuId))
 	{
 		ColorChat(id, "%s %s", g_eSettings[iMenuId][MENU_PREFIX], g_eSettings[iMenuId][MENU_NOTEAM])
 		return PLUGIN_HANDLED
 	}
-	
+
 	if(!get_alive_access(id, iMenuId))
 	{
 		ColorChat(id, "%s %s", g_eSettings[iMenuId][MENU_PREFIX], g_eSettings[iMenuId][MENU_ALIVEONLY] == 1 ? g_eSettings[iMenuId][MENU_ALIVE] : g_eSettings[iMenuId][MENU_DEAD])
 		return PLUGIN_HANDLED
 	}
-	
+
 	if(g_eSettings[iMenuId][MENU_SOUND][0] != EOS)
 		client_cmd(id, "spk %s", g_eSettings[iMenuId][MENU_SOUND])
-	
+
 	new szItem[128], szData[20]
 	new eItem[Items], iMenu = menu_create(g_eSettings[iMenuId][MENU_TITLE], "handlerMain")
-	
+
 	for(new i, iTeam = get_user_team(id); i < g_iTotalItems[iMenuId]; i++)
 	{
 		ArrayGetArray(g_aMenuItems[iMenuId], i, eItem)
-		
+
 		if(eItem[Team] && eItem[Team] != iTeam)
 			continue
 		else if(equal(eItem[Name], g_szBlankField))
@@ -380,11 +385,11 @@ menuMain(id, iMenuId, iPage = 0)
 		{
 			new szName[32], iPlayers[32], iPnum
 			get_players(iPlayers, iPnum, get_flag(eItem[Flag], "c") ? "a" : "")
-			
+
 			for(new j, iPlayer; j < iPnum; j++)
 			{
 				iPlayer = iPlayers[j]
-				
+
 				if(iPlayer == id)
 				{
 					if(!get_flag(eItem[Flag], "b"))
@@ -411,14 +416,14 @@ menuMain(id, iMenuId, iPage = 0)
 			menu_additem(iMenu, szItem, szData, read_flags(eItem[Flag]))
 		}
 	}
-	
+
 	if(menu_pages(iMenu) > 1)
 	{
 		new szTitle[256]
 		formatex(szTitle, charsmax(szTitle), "%s %s", g_eSettings[iMenuId][MENU_TITLE], g_eSettings[iMenuId][MENU_TITLE_PAGE])
 		menu_setprop(iMenu, MPROP_TITLE, szTitle)
 	}
-	
+
 	menu_setprop(iMenu, MPROP_BACKNAME, g_eSettings[iMenuId][MENU_BACKK])
 	menu_setprop(iMenu, MPROP_NEXTNAME, g_eSettings[iMenuId][MENU_NEXT])
 	menu_setprop(iMenu, MPROP_EXITNAME, g_eSettings[iMenuId][MENU_EXITT])
@@ -431,35 +436,35 @@ public handlerMain(id, iMenu, iItem)
 {
 	if(iItem == MENU_EXIT)
 		goto @DESTROY
-		
+
 	new szData[20], szMenuId[3], szKey[3], szUserId[5], iMenuId, iKey, iUserId, iAccess, iCallback
 	menu_item_getinfo(iMenu, iItem, iAccess, szData, charsmax(szData), .callback = iCallback)
 	parse(szData, szMenuId, charsmax(szMenuId), szKey, charsmax(szKey), szUserId, charsmax(szUserId))
-	
+
 	iMenuId = str_to_num(szMenuId)
 	iKey = str_to_num(szKey)
 	iUserId = str_to_num(szUserId)
-	
+
 	if(get_alive_access(id, iMenuId) && get_team_access(id, iMenuId))
 	{
 		new eItem[Items]
 		ArrayGetArray(g_aMenuItems[iMenuId], iKey, eItem)
-		
+
 		if(szData[strlen(szData) - 1] == 'p')
 		{
 			new szCommand[64]
 			copy(szCommand, charsmax(szCommand), eItem[Command])
-			
+
 			if(get_flag(szCommand, g_szNameField))
 			{
 				new szName[32]
 				get_user_name(find_player("k", iUserId), szName, charsmax(szName))
 				replace_all(szCommand, charsmax(szCommand), g_szNameField, szName)
 			}
-			
+
 			if(get_flag(szCommand, g_szUserIdField))
 				replace_all(szCommand, charsmax(szCommand), g_szUserIdField, szUserId)
-				
+
 			client_cmd(id, szCommand)
 		}
 		else
@@ -474,7 +479,7 @@ public handlerMain(id, iMenu, iItem)
 				client_cmd(id, eItem[Command])
 		}
 	}
-	
+
 	if(g_eSettings[iMenuId][MENU_REOPEN])
 	{
 		new iMenu2, iPage
@@ -483,8 +488,8 @@ public handlerMain(id, iMenu, iItem)
 		menuMain(id, iMenuId, iPage)
 		return PLUGIN_HANDLED
 	}
-	
-	@DESTROY:	
+
+	@DESTROY:
 	menu_destroy(iMenu)
 	return PLUGIN_HANDLED
 }
@@ -494,16 +499,16 @@ ColorChat(const id, const szInput[], any:...)
 	new iPlayers[32], iCount = 1
 	static szMessage[191]
 	vformat(szMessage, charsmax(szMessage), szInput, 3)
-	
+
 	replace_all(szMessage, charsmax(szMessage), "!g", "^4")
 	replace_all(szMessage, charsmax(szMessage), "!n", "^1")
 	replace_all(szMessage, charsmax(szMessage), "!t", "^3")
-	
+
 	if(id)
 		iPlayers[0] = id
 	else
 		get_players(iPlayers, iCount, "ch")
-	
+
 	for(new i; i < iCount; i++)
 	{
 		if(is_user_connected(iPlayers[i]))
